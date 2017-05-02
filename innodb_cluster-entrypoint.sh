@@ -18,7 +18,7 @@ if [ "$NODE_TYPE" = 'router' ]; then
                 exit 1
         fi
 
-        CMD="mysqlrouter --bootstrap=$BOOTSTRAP"
+        CMD="mysqlrouter $ARGS --bootstrap=$BOOTSTRAP"
 
 # Let's setup a mysql server instance normally 
 else
