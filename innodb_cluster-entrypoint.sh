@@ -47,6 +47,7 @@ else
 	        exit 1
         else
 		echo >&1 "info: attempting to join the $GROUP_NAME group using $GROUP_SEEDS as seeds"
+                MYSQLD_ARGS="$MYSQLD_ARGS --loose-group_replication_group_seeds=$GROUP_SEEDS"
 	fi
 
         # You can use --hostname=<hostname> for each container or use the auto-generated one; 
@@ -153,6 +154,9 @@ else
 
                 # let's remove any binary logs or GTID metadata that may have been generated 
                 echo 'RESET MASTER ;' | "${mysql[@]}"
+
+                # lastly we need to setup the recovery channel with a valid username/password
+                echo "CHANGE MASTER TO MASTER_USER='root', MASTER_PASSWORD='$MYSQL_ROOT_PASSWORD' FOR CHANNEL 'group_replication_recovery' ;" | "${mysql[@]}"
 
 		if ! kill -s TERM "$pid" || ! wait "$pid"; then
 			echo >&2 'MySQL init process failed.'
