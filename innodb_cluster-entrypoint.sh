@@ -27,6 +27,11 @@ else
 	        exit 1
 	fi
 
+	if [ -z "$GROUP_SEEDS" ]; then 
+		echo >&2 'error: You must specify at least one valid IP/hostname:PORT URI value for GROUP_SEEDS in order to join an existing cluster'
+	        exit 1
+	fi
+
         # let's generate a random server_id value; it can be any unsigned 32 bit int
         SERVER_ID=$((RANDOM % 1000))
 
