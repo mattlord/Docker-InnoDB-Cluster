@@ -38,21 +38,22 @@ else
 	# if we're bootstrapping a new group then let's just generate a new group_name / UUID	
 	if [ ! -z "$BOOTSTRAP" ]; then
 		GROUP_NAME=$(uuidgen)
-		echo >&1 "info: Bootstrapping new Group Replication cluster using --group_replication_group_name=\"$GROUP_NAME\""
+		echo >&1 "info: Bootstrapping new Group Replication cluster using --group_replication_group_name=$GROUP_NAME"
 		echo >&1 "  You will need to specify GROUP_NAME=\"$GROUP_NAME\" if you want to add another node to this cluster"
 
-		MYSQLD_ARGS="$MYSQLD_ARGS --group_replication_bootstrap_group=ON"
-	else
+		MYSQLD_ARGS="$MYSQLD_ARGS --loose-group_replication_bootstrap_group=ON"
+	elif [ -z "$GROUP_SEEDS" ]; then
 		echo >&2 'error: You must specify at least one valid IP/hostname:PORT URI value for GROUP_SEEDS in order to join an existing cluster'
 	        exit 1
+        else
+		echo >&1 "info: attempting to join the $GROUP_NAME group using $GROUP_SEEDS as seeds"
 	fi
-
 
         # You can use --hostname=<hostname> for each container or use the auto-generated one; 
         # we'll need to use the hostname for group_replication_local_address
         HOSTNAME=$(hostname)
 
-	MYSQLD_ARGS="$MYSQLD_ARGS --group_replication_group_name=\"$GROUP_NAME\" --group_replication_local_address=\"$HOSTNAME:6606\""
+	MYSQLD_ARGS="$MYSQLD_ARGS --loose-group_replication_group_name=$GROUP_NAME --loose-group_replication_local_address=$HOSTNAME:6606"
 
 	# Test we're able to startup without errors. We redirect stdout to /dev/null so
 	# only the error messages are left.
@@ -109,7 +110,6 @@ else
 		fi
 		"${mysql[@]}" <<-EOSQL
 			-- What's done in this file shouldn't be replicated
-			--  or products like mysql-fabric won't work
 			SET @@SESSION.SQL_LOG_BIN=0;
 			DELETE FROM mysql.user WHERE user NOT IN ('mysql.sys', 'mysqlxsys');
 			CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' ;
@@ -166,7 +166,7 @@ else
 
 	chown -R mysql:mysql "$DATADIR"
 
-        CMD="mysqld $ARGS $MYSQLD_ARGS"
+        CMD="mysqld $ARGS --plugin-load=group_replication.so --group_replication_start_on_boot=ON $MYSQLD_ARGS"
 fi
 
 exec $CMD
