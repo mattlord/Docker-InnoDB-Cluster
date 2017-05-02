@@ -18,6 +18,6 @@ docker run --name=mysqlgr3 --hostname=mysqlgr3 --network=grnet -e MYSQL_ROOT_PAS
 # 6. Connect to one of the nodes via the mysql command-line client 
 docker run -it --network=grnet --rm mysql sh -c 'exec mysql -hmysqlgr1 -uroot -proot'
 
-# 7. View the cluster membership status 
+# 7. View the cluster membership status
 select * from performance_schema.replication_group_members;
 
