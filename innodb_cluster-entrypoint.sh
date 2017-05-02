@@ -27,13 +27,10 @@ else
 	        exit 1
 	fi
 
-	if [ -z "$GROUP_SEEDS" ]; then 
-		echo >&2 'error: You must specify at least one valid IP/hostname:PORT URI value for GROUP_SEEDS in order to join an existing cluster'
-	        exit 1
-	fi
-
         # let's generate a random server_id value; it can be any unsigned 32 bit int
         SERVER_ID=$((RANDOM % 1000))
+
+        CMD="mysqld"
 
         # We'll use this variable to manage the mysqld args 
         MYSQLD_ARGS="--server_id=$SERVER_ID"
@@ -45,7 +42,11 @@ else
 		echo >&1 "  You will need to specify GROUP_NAME=\"$GROUP_NAME\" if you want to add another node to this cluster"
 
 		MYSQLD_ARGS="$MYSQLD_ARGS --group_replication_bootstrap_group=ON"
- 	fi
+	else
+		echo >&2 'error: You must specify at least one valid IP/hostname:PORT URI value for GROUP_SEEDS in order to join an existing cluster'
+	        exit 1
+	fi
+
 
         # You can use --hostname=<hostname> for each container or use the auto-generated one; 
         # we'll need to use the hostname for group_replication_local_address
@@ -56,7 +57,7 @@ else
 	# Test we're able to startup without errors. We redirect stdout to /dev/null so
 	# only the error messages are left.
 	result=0
-	output=$("$@" --verbose --help 2>&1 > /dev/null) || result=$?
+	output=$("$CMD" --verbose --help $MYSQLD_ARGS 2>&1 > /dev/null) || result=$?
 	if [ ! "$result" = "0" ]; then
 		echo >&2 'error: could not run mysql. This could be caused by a misconfigured my.cnf'
 		echo >&2 "$output"
@@ -64,7 +65,7 @@ else
 	fi
 
 	# Get config
-	DATADIR="$("$@" --verbose --help --log-bin-index=/tmp/tmp.index 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
+	DATADIR="$("$CMD" --verbose --help --log-bin-index=/tmp/tmp.index $MYSQLD_ARGS 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
 
 	if [ ! -d "$DATADIR/mysql" ]; then
 		if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
@@ -80,10 +81,10 @@ else
 		chown -R mysql:mysql "$DATADIR"
 
 		echo 'Initializing database'
-		"$@" --initialize-insecure=on
+		"$CMD" --initialize-insecure=on $MYSQLD_ARGS
 		echo 'Database initialized'
 
-		"$@" --skip-networking &
+		"$CMD" --skip-networking $MYSQLD_ARGS &
 		pid="$!"
 
 		mysql=( mysql --protocol=socket -uroot )

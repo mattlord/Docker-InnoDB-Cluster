@@ -7,6 +7,7 @@ RUN rpmkeys --import http://repo.mysql.com/RPM-GPG-KEY-mysql \
   && yum install -y $MYSQLD_URL \
   && yum install -y $ROUTER_URL \
   && yum install -y libpwquality \
+  && yum install -y hostname \
   && rm -rf /var/cache/yum/*
 RUN mkdir /docker-entrypoint-initdb.d
 
