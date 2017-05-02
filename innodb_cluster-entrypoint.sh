@@ -35,9 +35,9 @@ else
 
 	# if we're bootstrapping a new group then let's just generate a new group_name / UUID	
 	if [ ! -z "$BOOTSTRAP" ]; then
-		GROUP_NAME="$(uuidgen)"
-		echo >&1 'info: Bootstrapping new Group Replication cluster using --group_replication_bootstrap_group="$GROUP_NAME"'
-		echo >&1 '  You will need to specify GROUP_NAME="$GROUP_NAME" if you want to add another node to this cluster'
+		GROUP_NAME=$(uuidgen)
+		echo >&1 "info: Bootstrapping new Group Replication cluster using --group_replication_bootstrap_group=\"$GROUP_NAME\""
+		echo >&1 "  You will need to specify GROUP_NAME=\"$GROUP_NAME\" if you want to add another node to this cluster"
 
 		MYSQLD_ARGS="$MYSQLD_ARGS --group_replication_bootstrap_group=ON"
  	fi
@@ -46,7 +46,7 @@ else
         # we'll need to use the hostname for group_replication_local_address
         HOSTNAME=$(hostname)
 
-	MYSQLD_ARGS="$MYSQLD_ARGS --group_replication_group_name=\"$GROUP_NAME\" --group_replication_local_address=\"$HOSTNAME:6606\""
+	MYSQLD_ARGS="$MYSQLD_ARGS --group_replication_group_name=\"${GROUP_NAME}\" --group_replication_local_address=\"$HOSTNAME:6606\""
 
 	# Test we're able to startup without errors. We redirect stdout to /dev/null so
 	# only the error messages are left.
