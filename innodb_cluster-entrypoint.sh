@@ -144,6 +144,10 @@ else
 				ALTER USER 'root'@'%' PASSWORD EXPIRE;
 			EOSQL
 		fi
+
+                # let's remove any binary logs or GTID metadata that may have been generated 
+                echo 'RESET MASTER ;' | "${mysql[@]}"
+
 		if ! kill -s TERM "$pid" || ! wait "$pid"; then
 			echo >&2 'MySQL init process failed.'
 			exit 1
