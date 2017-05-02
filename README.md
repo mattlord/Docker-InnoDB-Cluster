@@ -4,7 +4,7 @@ docker network create --driver bridge grnet
 # 2. Bootstrap the cluster
 docker run --name=mysqlgr1 --hostname=mysqlgr1 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e BOOTSTRAP=1 -itd 4f76fa36fdff
 
-### this will spit out the GROUP_NAME to use for subsequent nodes, for example:
+#### Step 2 will spit out the GROUP_NAME to use for subsequent nodes, for example:
 docker logs mysqlgr1 | grep GROUP_NAME
   You will need to specify GROUP_NAME="a94c5c6a-ecc6-4274-b6c1-70bd759ac27f" if you want to add another node to this cluster
 
