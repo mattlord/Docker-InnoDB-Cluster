@@ -1,4 +1,4 @@
-###You can use the example shell scripts to create a cluster (start_three_node_cluster.sh) and clean it up (cleanup_cluster.sh). Or you can do it by hand using the following steps:
+### You can use the example shell scripts to create a cluster (start_three_node_cluster.sh) and clean it up (cleanup_cluster.sh). Or you can do it by hand using the following steps:
 
 # 1. Create a private network for the containers 
 docker network create --driver bridge grnet
