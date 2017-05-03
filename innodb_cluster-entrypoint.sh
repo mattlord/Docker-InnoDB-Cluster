@@ -39,7 +39,7 @@ else
 	if [ ! -z "$BOOTSTRAP" ]; then
 		GROUP_NAME=$(uuidgen)
 		echo >&1 "info: Bootstrapping new Group Replication cluster using --group_replication_group_name=$GROUP_NAME"
-		echo >&1 "  You will need to specify GROUP_NAME=\"$GROUP_NAME\" if you want to add another node to this cluster"
+		echo >&1 "  You will need to specify GROUP_NAME=$GROUP_NAME if you want to add another node to this cluster"
 
 		MYSQLD_ARGS="$MYSQLD_ARGS --loose-group_replication_bootstrap_group=ON"
 	elif [ -z "$GROUP_SEEDS" ]; then

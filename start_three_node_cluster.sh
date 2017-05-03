@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Creating dedicated vnetwork ..."
+echo "Creating dedicated vnetwork grnet ..."
 docker network create --driver bridge grnet
 
 echo "Bootstrapping cluster ... "
@@ -23,7 +23,7 @@ echo "Getting GROUP_NAME..."
 GROUP_PARAM=$(docker logs mysqlgr1 | awk 'BEGIN {RS=" "}; /GROUP_NAME/')
 
 echo "Adding second node..."
-docker run --name=mysqlgr2 --hostname=mysqlgr2 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e "$GROUP_PARAM" -e GROUP_SEEDS='mysqlgr1:6606' -itd mattalord/innodb-cluster
+docker run --name=mysqlgr2 --hostname=mysqlgr2 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd mattalord/innodb-cluster
 
 for i in {60..0}; do
         if docker logs mysqlgr2 | grep 'Ready for start up'; then
@@ -39,7 +39,7 @@ if [ "$i" = 0 ]; then
 fi  
 
 echo "Adding third node..."
-docker run --name=mysqlgr3 --hostname=mysqlgr3 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e "$GROUP_PARAM" -e GROUP_SEEDS='mysqlgr1:6606' -itd mattalord/innodb-cluster
+docker run --name=mysqlgr3 --hostname=mysqlgr3 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd mattalord/innodb-cluster
 
 for i in {60..0}; do
         if docker logs mysqlgr3 | grep 'Ready for start up'; then
