@@ -26,15 +26,30 @@ if [ "$NODE_TYPE" = 'router' ]; then
 		MYSQL_USER="root"
 	fi
 
+        # We'll use the hostname as the router instance name
+	HOSTNAME=$(hostname)
+
         # we need to ensure that the innodb_cluster_metadata is in place
         # the dba.createCluster() API call is idempotent, so we can simply call it each time with the same name
-        mysqlsh=( mysqlsh --uri="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --js )
+        mysqlsh --uri="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --js > /dev/null 2>&1
 
 	"${mysqlsh[@]}" <<-EOJS
 		var cluster = dba.createCluster('testcluster', {adoptFromGR: true}) ;
 	EOJS
 
-        CMD="mysqlrouter $ARGS --bootstrap=$MYSQL_USER:$MYSQL_ROOT_PASSWORD@$MYSQL_HOST:$MYSQL_PORT"
+        output=$(mysqlrouter --bootstrap="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --user=mysql --name "$HOSTNAME" --force)
+
+        if [ ! "$?" = "0" ]; then
+		echo >&2 'error: could not bootstrap router:'
+		echo >&2 "$output"
+		exit 1
+	fi
+       
+        # bug (?) in Router 2.1.3 didn't set file permissions based on --user value 
+	chown -R mysql:mysql "/var/lib/mysqlrouter"
+
+        # now that we've bootstrapped the setup, let's start the process
+        CMD="mysqlrouter"
 
 # Let's setup a mysql server instance normally 
 else
