@@ -54,9 +54,13 @@ if [ "$i" = 0 ]; then
         exit 1
 fi  
 
+echo "Adding a router..."
+docker run --name=mysqlrouter1 --hostname=mysqlrouter1 --network=grnet -e NODE_TYPE=router -e MYSQL_HOST=mysqlgr1 -e MYSQL_ROOT_PASSWORD=root -itd mattalord/innodb-cluster
+
+
 echo "Done!"
 
 echo "Connecting to the InnoDB cluster..."
-docker run -it --network=grnet --rm mysql sh -c 'exec mysql -hmysqlgr1 -uroot -proot'
+docker exec -it mysqlgr1 mysql -hmysqlgr1 -uroot -proot
 
 exit

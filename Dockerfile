@@ -1,11 +1,13 @@
 FROM oraclelinux:7-slim
 ENV MYSQLD_URL https://repo.mysql.com/yum/mysql-5.7-community/docker/x86_64/mysql-community-server-minimal-5.7.18-1.el7.x86_64.rpm
 ENV ROUTER_URL https://repo.mysql.com/yum/mysql-tools-community/el/7/x86_64/mysql-router-2.1.3-1.el7.x86_64.rpm
+ENV SHELL_URL https://repo.mysql.com/yum/mysql-tools-community/el/7/x86_64/mysql-shell-1.0.9-1.el7.x86_64.rpm
 
 # Install server
 RUN rpmkeys --import http://repo.mysql.com/RPM-GPG-KEY-mysql \
   && yum install -y $MYSQLD_URL \
   && yum install -y $ROUTER_URL \
+  && yum install -y $SHELL_URL \
   && yum install -y libpwquality \
   && yum install -y hostname \
   && rm -rf /var/cache/yum/*
