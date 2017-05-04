@@ -13,12 +13,28 @@ if [ "$NODE_TYPE" = 'router' ]; then
         echo 'Setting up a new router instance...'
 
         # we need to ensure that they've specified a boostrap URI 
-        if [ -z "$BOOTSTRAP" ]; then
-                echo >&2 'error: a valid mysqld URI must be specified via the BOOTSTRAP env variable when setting up a router'
+        if [ -z "$MYSQL_HOST" -a -z "$MYSQL_PASSWORD" ]; then
+                echo >&2 'error: You must specify a value for MYSQL_HOST and MYSQL_PASSWORD (MYSQL_USER=root is the default) when setting up a router'
                 exit 1
         fi
 
-        CMD="mysqlrouter $ARGS --bootstrap=$BOOTSTRAP"
+        if [ -z "$MYSQL_PORT" ]; then
+		MYSQL_PORT="3306"
+	fi
+
+        if [ -z "$MYSQL_USER" ]; then
+		MYSQL_USER="root"
+	fi
+
+        # we need to ensure that the innodb_cluster_metadata is in place
+        # the dba.createCluster() API call is idempotent, so we can simply call it each time with the same name
+        mysqlsh=( mysqlsh --uri="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --js )
+
+	"${mysqlsh[@]}" <<-EOJS
+		var cluster = dba.createCluster('testcluster', {adoptFromGR: true}) ;
+	EOJS
+
+        CMD="mysqlrouter $ARGS --bootstrap=$MYSQL_USER:$MYSQL_ROOT_PASSWORD@$MYSQL_HOST:$MYSQL_PORT"
 
 # Let's setup a mysql server instance normally 
 else

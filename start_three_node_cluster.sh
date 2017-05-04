@@ -54,9 +54,11 @@ if [ "$i" = 0 ]; then
         exit 1
 fi  
 
+# let's give GR a few seconds to finish syncing up
+sleep 5
+
 echo "Adding a router..."
 docker run --name=mysqlrouter1 --hostname=mysqlrouter1 --network=grnet -e NODE_TYPE=router -e MYSQL_HOST=mysqlgr1 -e MYSQL_ROOT_PASSWORD=root -itd mattalord/innodb-cluster
-
 
 echo "Done!"
 
