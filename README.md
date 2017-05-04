@@ -32,9 +32,7 @@ dba.getCluster().status()
 docker exec -it mysqlrouter1 bash
 
 To test the RW port, which always goes to the PRIMARY node:
-mysql -u root -proot -h localhost --protocol=tcp -P6446
-select @@global.server_uuid;
+mysql -u root -proot -h localhost --protocol=tcp -P6446 -e 'select @@global.server_uuid'
 
 To test the RO port, which is round-robin load balanced to the SECONDARY nodes:
-mysql -u root -proot -h localhost --protocol=tcp -P6447
-select @@global.server_uuid;
+mysql -u root -proot -h localhost --protocol=tcp -P6447 -e 'select @@global.server_uuid'
