@@ -1,9 +1,9 @@
 #!/bin/sh
 
-echo "Creating dedicated vnetwork grnet ..."
+echo "Creating dedicated grnet network..."
 docker network create --driver bridge grnet
 
-echo "Bootstrapping cluster ... "
+echo "Bootstrapping the cluster..."
 docker run --name=mysqlgr1 --hostname=mysqlgr1 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e BOOTSTRAP=1 -itd mattalord/innodb-cluster
 
 for i in {60..0}; do
@@ -56,7 +56,7 @@ fi
 
 echo "Done!"
 
-echo "Connecting to InnoDB cluster..."
+echo "Connecting to the InnoDB cluster..."
 docker run -it --network=grnet --rm mysql sh -c 'exec mysql -hmysqlgr1 -uroot -proot'
 
 exit
