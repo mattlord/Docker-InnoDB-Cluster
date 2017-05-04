@@ -17,9 +17,14 @@ docker run --name=mysqlgr3 --hostname=mysqlgr3 --network=grnet -e MYSQL_ROOT_PAS
 
 # 5. Add a nth node...
 
-# 6. Connect to the cluster via the mysql command line client on one of the nodes
+# 6. Connect to the cluster via the mysql command line client or MySQL Shell on one of the nodes
 docker exec -it mysqlgr1 mysql -hmysqlgr1 -uroot -proot
 
-# 7. View the cluster membership status
+There you can view the cluster membership status with:
 select * from performance_schema.replication_group_members;
+
+docker exec -it mysqlgr1 mysqlsh --uri=root:root@mysqlgr1:3306
+
+There you can view the cluster status with:
+dba.getCluster().status()
 
