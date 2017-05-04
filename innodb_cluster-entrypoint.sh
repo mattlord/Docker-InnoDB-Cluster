@@ -29,13 +29,16 @@ if [ "$NODE_TYPE" = 'router' ]; then
         # We'll use the hostname as the router instance name
 	HOSTNAME=$(hostname)
 
-        # we need to ensure that the innodb_cluster_metadata is in place
-        # the dba.createCluster() API call is idempotent, so we can simply call it each time with the same name
+        # We need to ensure that the innodb_cluster_metadata is in place
+        # But since the dba.createCluster() API call is NOT idempotent, we will simply ignore its EXIT with
+        #    error if the cluster already exists (using the builtin set +e)
+	set +e
         mysqlsh=( mysqlsh --uri="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --js )
 
 	"${mysqlsh[@]}" <<-EOJS
 		var cluster = dba.createCluster('testcluster', {adoptFromGR: true}) ;
 	EOJS
+        set -e
 
         output=$(mysqlrouter --bootstrap="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --user=mysql --name "$HOSTNAME" --force)
 

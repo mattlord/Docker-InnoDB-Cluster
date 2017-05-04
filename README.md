@@ -28,3 +28,13 @@ docker exec -it mysqlgr1 mysqlsh --uri=root:root@mysqlgr1:3306
 There you can view the cluster status with:
 dba.getCluster().status()
 
+#7. To test the router instance
+docker exec -it mysqlrouter1 bash
+
+To test the RW port, which always goes to the PRIMARY node:
+mysql -u root -proot -h localhost --protocol=tcp -P6446
+select @@global.server_uuid;
+
+To test the RO port, which is round-robin load balanced to the SECONDARY nodes:
+mysql -u root -proot -h localhost --protocol=tcp -P6447
+select @@global.server_uuid;
