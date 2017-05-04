@@ -63,6 +63,9 @@ docker run --name=mysqlrouter1 --hostname=mysqlrouter1 --network=grnet -e NODE_T
 echo "Done!"
 
 echo "Connecting to the InnoDB cluster..."
+echo 
+echo "Execute dba.getCluster().status() to see the current status" 
+echo 
 #docker exec -it mysqlgr1 mysql -hmysqlgr1 -uroot -proot
 docker exec -it mysqlgr1 mysqlsh --uri=root:root@mysqlgr1:3306
 
