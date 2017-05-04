@@ -31,7 +31,7 @@ if [ "$NODE_TYPE" = 'router' ]; then
 
         # we need to ensure that the innodb_cluster_metadata is in place
         # the dba.createCluster() API call is idempotent, so we can simply call it each time with the same name
-        mysqlsh --uri="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --js > /dev/null 2>&1
+        mysqlsh=( mysqlsh --uri="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --js )
 
 	"${mysqlsh[@]}" <<-EOJS
 		var cluster = dba.createCluster('testcluster', {adoptFromGR: true}) ;
@@ -49,7 +49,7 @@ if [ "$NODE_TYPE" = 'router' ]; then
 	chown -R mysql:mysql "/var/lib/mysqlrouter"
 
         # now that we've bootstrapped the setup, let's start the process
-        CMD="mysqlrouter"
+        CMD="mysqlrouter --user=mysql"
 
 # Let's setup a mysql server instance normally 
 else

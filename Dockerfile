@@ -16,6 +16,7 @@ RUN mkdir /docker-entrypoint-initdb.d
 ADD my.cnf /etc/mysql/my.cnf 
 
 VOLUME /var/lib/mysql
+VOLUME /var/lib/mysqlrouter
 
 COPY innodb_cluster-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
