@@ -1,9 +1,9 @@
 # Introduction
 
 MySQL InnoDB Cluster delivers an integrated, native, HA solution for your databases. MySQL InnoDB Cluster consists of:
-⋅⋅* MySQL Servers with Group Replication to replicate data to all members of the cluster while providing fault tolerance, automated failover, and elasticity.
-⋅⋅* MySQL Router to ensure client requests are load balanced and routed to the correct servers in case of any database failures.
-⋅⋅* MySQL Shell to create and administer InnoDB Clusters using the built-in AdminAPI.
+ * MySQL Servers with Group Replication to replicate data to all members of the cluster while providing fault tolerance, automated failover, and elasticity.
+ * MySQL Router to ensure client requests are load balanced and routed to the correct servers in case of any database failures.
+ * MySQL Shell to create and administer InnoDB Clusters using the built-in AdminAPI.
 
 For more information, see the [official product page](https://www.mysql.com/products/enterprise/high_availability.html) and the [official user guide](https://dev.mysql.com/doc/refman/5.7/en/mysql-innodb-cluster-userguide.html). 
 
