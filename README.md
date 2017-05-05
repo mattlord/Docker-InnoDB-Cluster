@@ -7,7 +7,7 @@ MySQL InnoDB Cluster delivers an integrated, native, HA solution for your databa
 
 For more information, see the [official product page](https://www.mysql.com/products/enterprise/high_availability.html) and the [official user guide](https://dev.mysql.com/doc/refman/5.7/en/mysql-innodb-cluster-userguide.html). 
 
-## Usage
+## Container Usage
 
 You can either use the example shell scripts to create a cluster, or you can do it manually.
 
