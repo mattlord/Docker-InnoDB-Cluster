@@ -64,7 +64,13 @@ This manual process is essentially documents what the `start_three_node_cluster.
 
 5. Optionally add additional nodes to the seed node using the same process ...
 
-6. Connect to the cluster via the mysql command line client or MySQL Shell on one of the nodes
+6. Add a router for the cluster 
+
+   ```
+   docker run --name=mysqlrouter1 --hostname=mysqlrouter1 --network=grnet -e NODE_TYPE=router -e MYSQL_HOST=mysqlgr1 -e MYSQL_ROOT_PASSWORD=root -itd mattalord/innodb-cluster
+   ```
+
+7. Connect to the cluster via the mysql command line client or MySQL Shell on one of the nodes
 
   ```docker exec -it mysqlgr1 mysql -hmysqlgr1 -uroot -proot```
 
