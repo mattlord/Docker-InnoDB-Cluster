@@ -72,13 +72,15 @@ This manual process is essentially documents what the `start_three_node_cluster.
 
 7. Connect to the cluster via the mysql command line client or MySQL Shell on one of the nodes
 
+  To use the classic mysql command-line client:
+
   ```docker exec -it mysqlgr1 mysql -hmysqlgr1 -uroot -proot```
 
   There you can view the cluster membership status from the mysql console:
 
   ```SELECT * from performance_schema.replication_group_members;```
 
-  Also, you can connect from MySQL shell:
+  To use the MySQL shell:
 
   ```docker exec -it mysqlgr1 mysqlsh --uri=root:root@mysqlgr1:3306```
 
