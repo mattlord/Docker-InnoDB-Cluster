@@ -7,6 +7,11 @@ if [ "${1:0:1}" = '-' ]; then
         ARGS="$@"
 fi
 
+# If the password variable is a filename we use the contents of the file
+if [ -n "$MYSQL_ROOT_PASSWORD" -a -f "$MYSQL_ROOT_PASSWORD" ]; then
+	MYSQL_ROOT_PASSWORD="$(cat $MYSQL_ROOT_PASSWORD)"
+fi
+
 # If we're setting up a router 
 if [ "$NODE_TYPE" = 'router' ]; then
 
@@ -108,10 +113,6 @@ else
 			echo >&2 'error: database is uninitialized and password option is not specified '
 			echo >&2 '  You need to specify one of MYSQL_ROOT_PASSWORD, MYSQL_ALLOW_EMPTY_PASSWORD and MYSQL_RANDOM_ROOT_PASSWORD'
 			exit 1
-		fi
-		# If the password variable is a filename we use the contents of the file
-		if [ -f "$MYSQL_ROOT_PASSWORD" ]; then
-			MYSQL_ROOT_PASSWORD="$(cat $MYSQL_ROOT_PASSWORD)"
 		fi
 		mkdir -p "$DATADIR"
 		chown -R mysql:mysql "$DATADIR"
