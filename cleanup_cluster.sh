@@ -17,4 +17,9 @@ docker network rm grnet >/dev/null 2>&1
 
 echo "Done!"
 
+echo
+echo "If you also want to reclaim disk space and remove all docker volumes currently unused by any containers, then execute the following command:"
+echo "docker volume prune -f"
+echo
+
 exit

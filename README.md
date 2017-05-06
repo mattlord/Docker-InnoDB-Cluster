@@ -13,7 +13,7 @@ You can either use the example shell scripts to create a cluster, or you can do 
 
 ### Scripted Method
 
-Helper scripts can be used to either create cluster, or to tear one down.
+Helper scripts can be used to either create a cluster, or to tear one down.
 
 #### Create a cluster
 
@@ -26,7 +26,7 @@ To create a three node cluster that includes MySQL Router and MySQL Shell, and c
   ```./cleanup_cluster.sh```
 
 ### Manual Method
-This manual process is essentially documents what the `start_three_node_cluster.sh` helper script performs.
+This manual process essentially documents what the `start_three_node_cluster.sh` helper script performs.
 
 1. Create a private network for the containers
 
@@ -41,14 +41,14 @@ This manual process is essentially documents what the `start_three_node_cluster.
   ```
 
   This will spit out the `GROUP_NAME` to use for subsequent nodes. For example,
-  output will contain something similar to:
+  the output will contain something similar to:
 
   ```
   You will need to specify GROUP_NAME=a94c5c6a-ecc6-4274-b6c1-70bd759ac27f 
   if you want to add another node to this cluster
   ```
 
-  You will use this when adding additional nodes below. In other words, replace the example value `a94c5c6a-ecc6-4274-b6c1-70bd759ac27f` below with yours.
+  You will use this variable when adding additional nodes below. In other words, replace the example value `a94c5c6a-ecc6-4274-b6c1-70bd759ac27f` below with yours.
 
 3. Add a second node to the cluster via a seed node
 
@@ -62,7 +62,7 @@ This manual process is essentially documents what the `start_three_node_cluster.
    docker run --name=mysqlgr3 --hostname=mysqlgr3 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e GROUP_NAME="a94c5c6a-ecc6-4274-b6c1-70bd759ac27f" -e GROUP_SEEDS="mysqlgr1:6606" -itd mattalord/innodb-cluster
    ```
 
-5. Optionally add additional nodes to the seed node using the same process ...
+5. Optionally add additional nodes via a seed node using the same process ...
 
 6. Add a router for the cluster 
 
@@ -70,7 +70,7 @@ This manual process is essentially documents what the `start_three_node_cluster.
    docker run --name=mysqlrouter1 --hostname=mysqlrouter1 --network=grnet -e NODE_TYPE=router -e MYSQL_HOST=mysqlgr1 -e MYSQL_ROOT_PASSWORD=root -itd mattalord/innodb-cluster
    ```
 
-7. Connect to the cluster via the mysql command line client or MySQL Shell on one of the nodes
+7. Connect to the cluster via the mysql command-line client or MySQL Shell on one of the nodes
 
   To use the classic mysql command-line client:
 
@@ -80,7 +80,7 @@ This manual process is essentially documents what the `start_three_node_cluster.
 
   ```SELECT * from performance_schema.replication_group_members;```
 
-  To use the MySQL shell:
+  To use the MySQL Shell:
 
   ```docker exec -it mysqlgr1 mysqlsh --uri=root:root@mysqlgr1:3306```
 

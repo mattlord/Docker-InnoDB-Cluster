@@ -2,51 +2,51 @@
 
 function create_network
 {
-    NETWORK_NAME=$1
-    exist_network=$(docker network ls | grep $NETWORK_NAME)
-    if [ -n "$exist_network" ]
-    then
-        echo "# network $NETWORK_NAME already exists"
-    else
-        docker network create --driver bridge $NETWORK_NAME
-    fi
-    docker network ls | grep "$NETWORK_NAME\|^NETWORK"
+	NETWORK_NAME=$1
+	exist_network=$(docker network ls | grep -w $NETWORK_NAME)
+
+	if [ -n "$exist_network" ]; then
+		echo "# network $NETWORK_NAME already exists"
+	else
+		docker network create --driver bridge $NETWORK_NAME
+	fi
+
+	docker network ls | grep -w "$NETWORK_NAME\|^NETWORK"
 }
 
 function check_for_failure
 {
-    container_name=$1
-    is_alive=$(docker ps -a | grep -w $container_name | grep -w Up)
-    if [ -n "$is_alive" ]
-    then
-        echo "Container $container_name is up at $(date)"
-    fi
-    is_dead=$(docker ps -a | grep -w $container_name | grep -w Exited)
-    if [ -n "$is_dead" ]
-    then
-        echo "Container $container_name is dead at ($date)"
-        exit 1
-    fi
+	container_name=$1
+	is_alive=$(docker ps -a | grep -w $container_name | grep -w Up)
+
+	if [ -n "$is_alive" ]; then
+		echo "Container $container_name is up at $(date)"
+	fi
+
+	is_dead=$(docker ps -a | grep -w $container_name | grep -w Exited)
+
+	if [ -n "$is_dead" ]; then
+		echo "Container $container_name is dead at ($date)"
+		exit 1
+	fi
 }
 
 function check_for_started_server
 {
-    container_name=$1
-    for i in {60..0}
-    do
-        if docker logs $container_name | grep 'Ready for start up'
-        then
-            break
-        fi
-        echo "Starting $container_name container..."
-        sleep 1
-    done
+	container_name=$1
 
-    if [ "$i" = 0 ]
-    then
-        echo >&2 "Start of $container_name container failed."
-        exit 1
-    fi
+	for i in {60..0}; do
+		if docker logs $container_name | grep 'Ready for start up'; then
+			break
+		fi
+		echo "Starting $container_name container..."
+		sleep 1
+	done
+
+	if [ "$i" = 0 ]; then
+		echo >&2 "Start of $container_name container failed."
+		exit 1
+	fi
 }
 
 echo "Creating dedicated grnet network..."
