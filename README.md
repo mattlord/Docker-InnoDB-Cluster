@@ -21,6 +21,10 @@ To create a three node cluster that includes MySQL Router and MySQL Shell, and c
 
   ```./start_three_node_cluster.sh```
 
+Note: if you want to use a different image (for example when you have build a variant of the image locally,) you can run the following **before** invoking start_three_node_cluster.sh:
+
+  ```export INNODB_CLUSTER_IMG=your_username/innodb-cluster```
+
 #### Tear down (remove) a cluster
 
   ```./cleanup_cluster.sh```
@@ -35,6 +39,9 @@ This manual process essentially documents what the `start_three_node_cluster.sh`
   ```
 
 2. Bootstrap the cluster
+
+Note about the root password: A secure method in these examples uses a random password from a file. 
+Wherever the default password (_root_) is mentioned, use instead ```$(cat secretpassword.txt)```.
 
   ```
   docker run --name=mysqlgr1 --hostname=mysqlgr1 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e BOOTSTRAP=1 -itd mattalord/innodb-cluster && docker logs mysqlgr1 | grep GROUP_NAME
