@@ -106,6 +106,6 @@ To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes
   If you're like me and you use Docker on macOS, it's helpful to know that Docker actually executes the containers inside an [Alpine Linux](https://alpinelinux.org) VM which in turn runs inside of a native [xhyve](http://www.pagetable.com/?p=831) hypervisor. You can access the console for that VM using:
   ```screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty```
 
-From there you can see view the docker networking, volumes (/var/lib/docker), etc. Knowing how this all works "under the hood" will certainly come in handy sooner or later. 
+From there you can see view the docker networking, volumes (/var/lib/docker), etc. Knowing how this all works "under the hood" will certainly come in handy sooner or later. Whenever you want to detach and close your console session just use: ``CTRL-A-\``
 
 FWIW, Docker on Windows (assuming you're not using the fully native windows-only version available in Windows Server 2016) works in a similar way, but uses [Hyper-V](https://en.wikipedia.org/wiki/Hyper-V) as the native hypervisor.
