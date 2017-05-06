@@ -49,12 +49,22 @@ function check_for_started_server
 	fi
 }
 
-# Allowing the cluster to use a random password instead of a predefined one
+# Allow the cluster to use a random password instead of a predefined one if desired
 SECRET_PWD_FILE=secretpassword.txt
-export docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE"
-#export docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=root"
 
-RANDOM_PASSWORD=$(echo $RANDOM | sha256sum | cut -c 1-16 )
+docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE"
+
+# macOS only has shasum
+if uname | grep '^Darwin$' >/dev/null 2>&1; then
+	SHA_CHKSUM_BIN="shasum"
+else
+	SHA_CHKSUM_BIN="sha256sum"
+fi
+
+# This command will allow us to create a random password roughly equivalent to `pwmake 128` on linux, but should be available on all UNIX variants (including macOS)
+# This will allow people to use validate_password_policy=[0,1,2] with mysqld 
+RANDOM_PASSWORD=$(echo $RANDOM | "$SHA_CHKSUM_BIN" | base64 | head -c 28 )
+
 if [ -z "$RANDOM_PASSWORD" ] ; then
     RANDOM_PASSWORD=$(date +%N%s)
 fi
@@ -101,8 +111,9 @@ echo "Connecting to the InnoDB cluster..."
 echo
 echo "Execute dba.getCluster().status() to see the current status"
 echo
-#docker exec -it mysqlgr1 mysql -hmysqlgr1 -uroot -proot
-(set -x
+
+# if you want to view the command that's being executed, uncomment the set -x line
+# set -x 
 docker exec -it mysqlgr1 mysqlsh --uri=root:$(cat $SECRET_PWD_FILE)@mysqlgr1:3306
-)
+
 exit
