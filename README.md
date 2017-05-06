@@ -99,3 +99,9 @@ To test the `RW` port, which always goes to the PRIMARY node:
 To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes:
 
   ```mysql -u root -proot -h localhost --protocol=tcp -P6447 -e 'SELECT @@global.server_uuid'```
+
+## macOS tip
+  If you're like me and you use Docker on macOS, it's helpful to know that Docker actually executes the containers inside an [Alpine Linux](https://alpinelinux.org) VM which in turn runs inside of a native [xhyve](http://www.pagetable.com/?p=831) hypervisor. You can access the console for that VM using:
+  ```screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty```
+
+From there you can see view the docker networking, volumes (/var/lib/docker), etc. Knowing how this all works "under the hood" will certainly come in handy sooner or later. 
