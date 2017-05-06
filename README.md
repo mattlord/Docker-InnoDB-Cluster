@@ -108,7 +108,7 @@ To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes
   screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
   ```
 
-From there you can see view the docker networking, volumes (/var/lib/docker), etc. Knowing how this all works "under the hood" will certainly come in handy sooner or later. Whenever you want to detach and close your console session just use:
+From there you can see the docker networking, volumes (/var/lib/docker), etc. Knowing how this all works "under the hood" will certainly come in handy sooner or later. Whenever you want to detach and close your console session just use:
 ```CTRL-A-\```
 
 FWIW, Docker on Windows (assuming you're not using the fully native windows-only version available in Windows Server 2016) works in a similar way, but uses [Hyper-V](https://en.wikipedia.org/wiki/Hyper-V) as the native hypervisor.
