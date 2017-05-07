@@ -61,9 +61,13 @@ else
 	SHA_CHKSUM_BIN="sha256sum"
 fi
 
-# This command will allow us to create a random password roughly equivalent to `pwmake 128` on linux, but should be available on all UNIX variants (including macOS)
-# This will allow people to use validate_password_policy=[0,1,2] with mysqld 
-RANDOM_PASSWORD=$(echo $RANDOM | $SHA_CHKSUM_BIN | base64 | head -c 28 )
+# This command will allow us to create a random password roughly equivalent to `pwmake 128` on linux, but should be available on all
+# UNIX variants (including macOS). It will allow the use of validate_password_policy=[0,1,2] with mysqld as we'll meet the strict requirements.
+# *But*, there seems to be a bug in how router handles the --uri parameter which prevents us from using non-alphanumberic characters...
+# RANDOM_PASSWORD=$(head -c "128" /dev/urandom | LANG=C tr -cd "[:alpha:] [:punct:]" | tr -d "[:blank:] [:cntrl:] [:special:] [\"\'\\]" | cut -c 1-27)
+
+# So for now we'll stick with the base64 checksum values
+RANDOM_PASSWORD=$(echo $RANDOM | $SHA_CHKSUM_BIN | base64 | head -c 28)
 
 if [ -z "$RANDOM_PASSWORD" ] ; then
     RANDOM_PASSWORD=$(date +%N%s)
