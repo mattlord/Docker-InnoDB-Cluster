@@ -117,12 +117,14 @@ echo "Done!"
 
 echo "Connecting to the InnoDB cluster..."
 echo
-echo "Execute dba.getCluster().status() to see the current status"
+echo "Executing dba.getCluster().status() to see the current status"
 echo
 
-# if you want to view the command that's being executed, uncomment the set -x line
-# set -x 
-docker exec -it mysqlgr1 mysqlsh --uri=root:$(cat $SECRET_PWD_FILE)@mysqlgr1:3306
+DELAY=5
+echo "Sleeping $DELAY seconds to give the router time to connect"
+sleep $DELAY
+
+./tests/check_cluster.sh 1
 
 # Allow using mysql without typing a password
 for node in "gr1" "gr2" "gr3" "router1"; do
