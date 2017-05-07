@@ -31,6 +31,10 @@ if [ "$NODE_TYPE" = 'router' ]; then
 		MYSQL_USER="root"
 	fi
 
+	if [ -z "$CLUSTER_NAME" ]; then
+		CLUSTER_NAME="testcluster"
+	fi
+
         # We'll use the hostname as the router instance name
 	HOSTNAME=$(hostname)
 
@@ -38,14 +42,14 @@ if [ "$NODE_TYPE" = 'router' ]; then
         # But since the dba.createCluster() API call is NOT idempotent, we will simply ignore its EXIT with
         #    error if the cluster already exists (using the builtin set +e)
 	set +e
-        mysqlsh=( mysqlsh --uri="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --js )
+        mysqlsh=( mysqlsh --uri="$MYSQL_USER"@"$MYSQL_HOST":"$MYSQL_PORT" -p"$MYSQL_ROOT_PASSWORD" --js )
 
 	"${mysqlsh[@]}" <<-EOJS
-		var cluster = dba.createCluster('testcluster', {adoptFromGR: true}) ;
+		var cluster = dba.createCluster('$CLUSTER_NAME', {adoptFromGR: true}) ;
 	EOJS
         set -e
 
-        output=$(mysqlrouter --bootstrap="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --user=mysql --name "$HOSTNAME" --force)
+        mysqlrouter=$(mysqlrouter --bootstrap="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --user=mysql --name "$HOSTNAME" --force)
 
         if [ ! "$?" = "0" ]; then
 		echo >&2 'error: could not bootstrap router:'
@@ -154,7 +158,7 @@ else
 			FLUSH PRIVILEGES ;
 		EOSQL
 		if [ ! -z "$MYSQL_ROOT_PASSWORD" ]; then
-			mysql+=( -p"${MYSQL_ROOT_PASSWORD}" )
+			mysql+=( -p"$MYSQL_ROOT_PASSWORD" )
 		fi
 
 		if [ "$MYSQL_DATABASE" ]; then

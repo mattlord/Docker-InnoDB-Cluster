@@ -11,6 +11,13 @@ For more information, see the [official product page](https://www.mysql.com/prod
 
 You can either use the example shell scripts to create a cluster, or you can do it manually.
 
+### Security
+
+A secure method of password generation and management is available using the auto-generated random password that's stored in a file within each container.
+All that's necessary to use the secure method is to replace all instances of ```MYSQL_ROOT_PASSWORD=root``` with ```MYSQL_ROOT_PASSWORD=$(cat secretpassword.txt)``` in each example docker command.
+
+**Note:** the scripted method now uses the secure password management facilities by default.
+
 ### Scripted Method
 
 Helper scripts can be used to either create a cluster, or to tear one down.
@@ -21,16 +28,16 @@ To create a three node cluster that includes MySQL Router and MySQL Shell, and c
 
   ```./start_three_node_cluster.sh```
 
-Note: if you want to use a different image (for example when you have build a variant of the image locally,) you can run the following **before** invoking start_three_node_cluster.sh:
+**Note:** if you want to use a different image (for example when you have built a local variant of the image) you can run the following *before* invoking start_three_node_cluster.sh:
 
-  ```export INNODB_CLUSTER_IMG=your_username/innodb-cluster```
+  ```export INNODB_CLUSTER_IMG=your_username/your_image_name```
 
 #### Tear down (remove) a cluster
 
   ```./cleanup_cluster.sh```
 
 ### Manual Method
-This manual process essentially documents what the `start_three_node_cluster.sh` helper script performs.
+This manual process essentially documents what the `start_three_node_cluster.sh` helper script performs. The main difference is that the examples contain a simple and non-secure password value of 'root'. You can leverage the built-in secure means of password management by using ```MYSQL_ROOT_PASSWORD=$(cat secretpassword.txt)``` instead.
 
 1. Create a private network for the containers
 
@@ -39,9 +46,6 @@ This manual process essentially documents what the `start_three_node_cluster.sh`
   ```
 
 2. Bootstrap the cluster
-
-Note about the root password: A secure method in these examples uses a random password from a file. 
-Wherever the default password (_root_) is mentioned, use instead ```$(cat secretpassword.txt)```.
 
   ```
   docker run --name=mysqlgr1 --hostname=mysqlgr1 --network=grnet -e MYSQL_ROOT_PASSWORD=root -e BOOTSTRAP=1 -itd mattalord/innodb-cluster && docker logs mysqlgr1 | grep GROUP_NAME
@@ -106,3 +110,16 @@ To test the `RW` port, which always goes to the PRIMARY node:
 To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes:
 
   ```mysql -u root -proot -h localhost --protocol=tcp -P6447 -e 'SELECT @@global.server_uuid'```
+
+---
+
+### macOS tip (and some Windows too)
+  If you're like me and you use Docker on macOS, it's helpful to know that Docker actually executes the containers inside an [Alpine Linux](https://alpinelinux.org) VM which in turn runs inside of a native [xhyve](http://www.pagetable.com/?p=831) hypervisor. You can access the console for that VM using:
+  ```
+  screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
+  ```
+
+From there you can see the docker networking, volumes (/var/lib/docker), etc. Knowing how this all works "under the hood" will certainly come in handy sooner or later. Whenever you want to detach and close your console session just use:
+```CTRL-A-\```
+
+FWIW, Docker on Windows (assuming you're not using the fully native windows-only version available in Windows Server 2016) works in a similar way, but uses [Hyper-V](https://en.wikipedia.org/wiki/Hyper-V) as the native hypervisor.
