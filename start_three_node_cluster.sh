@@ -63,7 +63,7 @@ fi
 
 # This command will allow us to create a random password roughly equivalent to `pwmake 128` on linux, but should be available on all
 # UNIX variants (including macOS). It will allow the use of validate_password_policy=[0,1,2] with mysqld as we'll meet the strict requirements.
-# *But*, there seems to be a bug in how router handles the --uri parameter which prevents us from using non-alphanumberic characters...
+# *But*, there seems to be an issue in how router handles the --uri parameter which prevents us from using non-alphanumberic characters...
 # RANDOM_PASSWORD=$(head -c "128" /dev/urandom | LANG=C tr -cd "[:alpha:] [:punct:]" | tr -d "[:blank:] [:cntrl:] [:special:] [\"\'\\]" | cut -c 1-27)
 
 # So for now we'll stick with the base64 checksum values
