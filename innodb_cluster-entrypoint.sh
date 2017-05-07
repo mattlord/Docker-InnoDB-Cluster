@@ -67,7 +67,7 @@ else
 	fi
 
         # let's generate a random server_id value; it can be any unsigned 32 bit int
-        SERVER_ID=$((RANDOM % 1000))
+        [ -z "$SERVER_ID" ] && SERVER_ID=$((RANDOM % 1000))
 
         CMD="mysqld"
 
