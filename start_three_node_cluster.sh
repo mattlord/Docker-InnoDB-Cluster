@@ -54,16 +54,16 @@ SECRET_PWD_FILE=secretpassword.txt
 
 docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE"
 
-# macOS only has shasum
+# macOS uses `shasum -a 256` rather than a separate sha256sum binary
 if uname | grep '^Darwin$' >/dev/null 2>&1; then
-	SHA_CHKSUM_BIN="shasum"
+	SHA_CHKSUM_BIN="shasum -a 256"
 else
 	SHA_CHKSUM_BIN="sha256sum"
 fi
 
 # This command will allow us to create a random password roughly equivalent to `pwmake 128` on linux, but should be available on all UNIX variants (including macOS)
 # This will allow people to use validate_password_policy=[0,1,2] with mysqld 
-RANDOM_PASSWORD=$(echo $RANDOM | "$SHA_CHKSUM_BIN" | base64 | head -c 28 )
+RANDOM_PASSWORD=$(echo $RANDOM | $SHA_CHKSUM_BIN | base64 | head -c 28 )
 
 if [ -z "$RANDOM_PASSWORD" ] ; then
     RANDOM_PASSWORD=$(date +%N%s)
