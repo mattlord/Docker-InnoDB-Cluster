@@ -31,6 +31,10 @@ if [ "$NODE_TYPE" = 'router' ]; then
 		MYSQL_USER="root"
 	fi
 
+	if [ -z "$CLUSTER_NAME" ]; then
+		CLUSTER_NAME="testcluster"
+	fi
+
         # We'll use the hostname as the router instance name
 	HOSTNAME=$(hostname)
 
@@ -41,7 +45,7 @@ if [ "$NODE_TYPE" = 'router' ]; then
         mysqlsh=( mysqlsh --uri="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --js )
 
 	"${mysqlsh[@]}" <<-EOJS
-		var cluster = dba.createCluster('testcluster', {adoptFromGR: true}) ;
+		var cluster = dba.createCluster('$CLUSTER_NAME', {adoptFromGR: true}) ;
 	EOJS
         set -e
 
