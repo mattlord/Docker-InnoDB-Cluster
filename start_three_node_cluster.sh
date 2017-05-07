@@ -52,6 +52,9 @@ function check_for_started_server
 # Allow the cluster to use a random password instead of a predefined one if desired
 SECRET_PWD_FILE=secretpassword.txt
 
+# Adding the current path as a volume (/opt/ic) in every node
+export docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE -v $PWD:/opt/ic"
+
 docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE"
 
 # macOS uses `shasum -a 256` rather than a separate sha256sum binary
@@ -80,7 +83,8 @@ create_network grnet
 [ -z "$INNODB_CLUSTER_IMG" ] && INNODB_CLUSTER_IMG=mattalord/innodb-cluster
 
 echo "Bootstrapping the cluster..."
-$docker_run --name=mysqlgr1 --hostname=mysqlgr1 -e BOOTSTRAP=1 -itd $INNODB_CLUSTER_IMG
+params="-e SERVER_ID=100 --name=mysqlgr1 --hostname=mysqlgr1"
+$docker_run $params -e BOOTSTRAP=1 -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr1
 check_for_started_server mysqlgr1
@@ -89,13 +93,15 @@ echo "Getting GROUP_NAME..."
 GROUP_PARAM=$(docker logs mysqlgr1 | awk 'BEGIN {RS=" "}; /GROUP_NAME/')
 
 echo "Adding second node..."
-$docker_run --name=mysqlgr2 --hostname=mysqlgr2 -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd $INNODB_CLUSTER_IMG
+params="-e SERVER_ID=200 --name=mysqlgr2 --hostname=mysqlgr2"
+$docker_run $params -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr2
 check_for_started_server mysqlgr2
 
 echo "Adding third node..."
-$docker_run --name=mysqlgr3 --hostname=mysqlgr3 -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd $INNODB_CLUSTER_IMG
+params="-e SERVER_ID=300 --name=mysqlgr3 --hostname=mysqlgr3"
+$docker_run $params -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr3
 check_for_started_server mysqlgr3
@@ -106,7 +112,7 @@ echo "Sleeping $DELAY seconds to give the cluster time to sync up"
 sleep $DELAY
 
 echo "Adding a router..."
-$docker_run --name=mysqlrouter1 --hostname=mysqlrouter1 -e NODE_TYPE=router -e MYSQL_HOST=mysqlgr1 -itd $INNODB_CLUSTER_IMG
+$docker_run -e SERVER_ID=400 --name=mysqlrouter1 --hostname=mysqlrouter1 -e NODE_TYPE=router -e MYSQL_HOST=mysqlgr1 -itd $INNODB_CLUSTER_IMG
 check_for_failure mysqlrouter1
 
 echo "Done!"
@@ -119,5 +125,10 @@ echo
 # if you want to view the command that's being executed, uncomment the set -x line
 # set -x 
 docker exec -it mysqlgr1 mysqlsh --uri=root:$(cat $SECRET_PWD_FILE)@mysqlgr1:3306
+
+# Allow using mysql without typing a password
+for node in gr1 gr2 gr3 router1 ; do
+    docker exec -it mysql$node /opt/ic/make_my_cnf.sh
+done
 
 exit
