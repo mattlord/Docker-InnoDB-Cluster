@@ -53,9 +53,7 @@ function check_for_started_server
 SECRET_PWD_FILE=secretpassword.txt
 
 # Adding the current path as a volume (/opt/ic) in every node
-export docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE -v $PWD:/opt/ic"
-
-docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE"
+docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE -v $PWD:/opt/ic"
 
 # macOS uses `shasum -a 256` rather than a separate sha256sum binary
 if uname | grep '^Darwin$' >/dev/null 2>&1; then
@@ -127,7 +125,7 @@ echo
 docker exec -it mysqlgr1 mysqlsh --uri=root:$(cat $SECRET_PWD_FILE)@mysqlgr1:3306
 
 # Allow using mysql without typing a password
-for node in gr1 gr2 gr3 router1 ; do
+for node in "gr1" "gr2" "gr3" "router1"; do
     docker exec -it mysql$node /opt/ic/make_my_cnf.sh
 done
 
