@@ -38,18 +38,20 @@ if [ "$NODE_TYPE" = 'router' ]; then
         # We'll use the hostname as the router instance name
 	HOSTNAME=$(hostname)
 
-        # We need to ensure that the innodb_cluster_metadata is in place
-        # But since the dba.createCluster() API call is NOT idempotent, we will simply ignore its EXIT with
-        #    error if the cluster already exists (using the builtin set +e)
+        # first we need to see if the cluster metadata already exists 
 	set +e
-        mysqlsh=( mysqlsh --uri="$MYSQL_USER"@"$MYSQL_HOST":"$MYSQL_PORT" -p"$MYSQL_ROOT_PASSWORD" --js )
-
-	"${mysqlsh[@]}" <<-EOJS
-		var cluster = dba.createCluster('$CLUSTER_NAME', {adoptFromGR: true}) ;
-	EOJS
+        metadata_exists=$(mysqlsh --uri="$MYSQL_USER"@"$MYSQL_HOST":"$MYSQL_PORT" -p"$MYSQL_ROOT_PASSWORD" --js -i -e "dba.getCluster( '${CLUSTER_NAME}' )" 2>&1 | grep "<Cluster:$CLUSTER_NAME>")
         set -e
 
-        mysqlrouter=$(mysqlrouter --bootstrap="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$MYSQL_HOST":"$MYSQL_PORT" --user=mysql --name "$HOSTNAME" --force)
+	# We need to get the host:port combination for the primary node (or just the first node when NOT in single primary mode)
+        HOSTPORT=$(mysql --no-defaults -h "$MYSQL_HOST" -P"$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_ROOT_PASSWORD" -nsLNE -e "select CONCAT(member_host, ':', member_port) as primary_host from performance_schema.replication_group_members where member_id=(IF((select @grpm:=variable_value from performance_schema.global_status where variable_name='group_replication_primary_member') = '', member_id, @grpm)) limit 1" 2>/dev/null | grep -v '*')
+
+        if [ -z "$metadata_exists" ]; then
+		# Then let's create the innodb cluster metadata 
+		output=$(mysqlsh --uri="$MYSQL_USER"@"$HOSTPORT" -p"$MYSQL_ROOT_PASSWORD" --js -i -e "dba.createCluster('${CLUSTER_NAME}', {adoptFromGR: true})")
+	fi
+
+        output=$(mysqlrouter --bootstrap="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$HOSTPORT" --user=mysql --name "$HOSTNAME" --force)
 
         if [ ! "$?" = "0" ]; then
 		echo >&2 'error: could not bootstrap router:'

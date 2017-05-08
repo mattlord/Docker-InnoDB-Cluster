@@ -6,12 +6,12 @@ if [ "$(hostname)" != "mysqlrouter1" ] ; then
 	exit 
 fi
 
-if [ ! -f "$HOME/.my.cnf" ] ; then
-	echo "File $HOME/.my.cnf not found - aborting"
-	exit 1
+if [ -f "$HOME/.my.cnf" ] ; then
+	mysql="mysql -u root -h localhost --protocol=tcp "
+else
+	mysql="mysql -u root -h localhost --protocol=tcp -p$(cat /root/secretpassword.txt) "
 fi
 
-mysql="mysql -u root -h localhost --protocol=tcp "
 
 echo "Server ID of current master"
 $mysql -P6446 -ve 'SELECT @@global.server_id'

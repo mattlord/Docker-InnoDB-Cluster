@@ -81,7 +81,7 @@ create_network grnet
 [ -z "$INNODB_CLUSTER_IMG" ] && INNODB_CLUSTER_IMG=mattalord/innodb-cluster
 
 echo "Bootstrapping the cluster..."
-params="-e SERVER_ID=100 --name=mysqlgr1 --hostname=mysqlgr1"
+params="-e SERVER_ID=100 --name=mysqlgr1 --hostname=mysqlgr1 --network-alias=myinnodbcluster"
 $docker_run $params -e BOOTSTRAP=1 -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr1
@@ -91,14 +91,14 @@ echo "Getting GROUP_NAME..."
 GROUP_PARAM=$(docker logs mysqlgr1 | awk 'BEGIN {RS=" "}; /GROUP_NAME/')
 
 echo "Adding second node..."
-params="-e SERVER_ID=200 --name=mysqlgr2 --hostname=mysqlgr2"
+params="-e SERVER_ID=200 --name=mysqlgr2 --hostname=mysqlgr2 --network-alias=myinnodbcluster"
 $docker_run $params -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr2
 check_for_started_server mysqlgr2
 
 echo "Adding third node..."
-params="-e SERVER_ID=300 --name=mysqlgr3 --hostname=mysqlgr3"
+params="-e SERVER_ID=300 --name=mysqlgr3 --hostname=mysqlgr3  --network-alias=myinnodbcluster"
 $docker_run $params -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr3
@@ -110,7 +110,7 @@ echo "Sleeping $DELAY seconds to give the cluster time to sync up"
 sleep $DELAY
 
 echo "Adding a router..."
-$docker_run -e SERVER_ID=400 --name=mysqlrouter1 --hostname=mysqlrouter1 -e NODE_TYPE=router -e MYSQL_HOST=mysqlgr1 -itd $INNODB_CLUSTER_IMG
+$docker_run --name=mysqlrouter1 --hostname=mysqlrouter1 -e NODE_TYPE=router -e MYSQL_HOST=myinnodbcluster -itd $INNODB_CLUSTER_IMG
 check_for_failure mysqlrouter1
 
 echo "Done!"
