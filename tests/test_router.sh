@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [ "$(hostname)" != "mysqlrouter1" ] ; then
-	echo "# This command must run in the router. For example:"
-	echo "# docker exec -it mysqlrouter1 /opt/ic/tests/test_router.sh"
-	exit 1
+	echo "# This command must run in the router. Redirecting "
+	docker exec -it mysqlrouter1 /opt/ic/tests/test_router.sh
+	exit 
 fi
 
 if [ ! -f "$HOME/.my.cnf" ] ; then
