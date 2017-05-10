@@ -35,15 +35,18 @@ function check_for_started_server
 {
 	container_name=$1
 
-	for i in {60..0}; do
-		if docker logs $container_name | grep 'Ready for start up'; then
+	printf "Starting $container_name container..."
+	for i in {30..0}; do
+		if [[ $(docker logs $container_name) =~ "Ready for start up" ]]; then
+			echo " done."
 			break
 		fi
-		echo "Starting $container_name container..."
-		sleep 1
+		printf "."
+		sleep 2
 	done
 
 	if [ "$i" = 0 ]; then
+		echo
 		echo >&2 "Start of $container_name container failed."
 		exit 1
 	fi
