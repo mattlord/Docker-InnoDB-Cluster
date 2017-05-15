@@ -51,7 +51,7 @@ if [ "$NODE_TYPE" = 'router' ]; then
 		output=$(mysqlsh --uri="$MYSQL_USER"@"$HOSTPORT" -p"$MYSQL_ROOT_PASSWORD" --js -i -e "dba.createCluster('${CLUSTER_NAME}', {adoptFromGR: true})")
 	fi
 
-        output=$(mysqlrouter --bootstrap="$MYSQL_USER":"$MYSQL_ROOT_PASSWORD"@"$HOSTPORT" --user=mysql --name "$HOSTNAME" --force)
+        output=$(echo "$MYSQL_ROOT_PASSWORD" | mysqlrouter --bootstrap="$MYSQL_USER"@"$HOSTPORT" --user=mysql --name "$HOSTNAME" --force)
 
         if [ ! "$?" = "0" ]; then
 		echo >&2 'error: could not bootstrap router:'

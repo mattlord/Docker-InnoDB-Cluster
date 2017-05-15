@@ -10,6 +10,7 @@ fi
 # if you want to view the command that's being executed, uncomment the set -x line
 # set -x 
 docker exec -it mysqlgr$node mysqlsh \
-    --uri=root:$(cat $PWD_FILE)@mysqlgr$node:3306 \
+    --uri=root@mysqlgr$node:3306 \
+    -p$(cat $PWD_FILE) \
     -i -e 'dba.getCluster().status()'
 
