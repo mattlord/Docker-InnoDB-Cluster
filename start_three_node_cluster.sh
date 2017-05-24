@@ -53,28 +53,32 @@ function check_for_started_server
 }
 
 # Allow the cluster to use a random password instead of a predefined one if desired
-SECRET_PWD_FILE=secretpassword.txt
+[ -z "$SECRET_PWD_FILE" ] && SECRET_PWD_FILE=secretpassword.txt
 
 # Adding the current path as a volume (/opt/ic) in every node
 docker_run="docker run --network=grnet -v $PWD/$SECRET_PWD_FILE:/root/$SECRET_PWD_FILE -e MYSQL_ROOT_PASSWORD=/root/$SECRET_PWD_FILE -v $PWD:/opt/ic"
 
-# macOS uses `shasum -a 256` rather than a separate sha256sum binary
-if uname | grep '^Darwin$' >/dev/null 2>&1; then
-	SHA_CHKSUM_BIN="shasum -a 256"
+if [ -f "$SECRET_PWD_FILE" ]; then
+	echo "Password file exists! Please remove it ($SECRET_PWD_FILE) if you want a new one to be generated." 
 else
-	SHA_CHKSUM_BIN="sha256sum"
-fi
+	# macOS uses `shasum -a 256` rather than a separate sha256sum binary
+	if uname | grep '^Darwin$' >/dev/null 2>&1; then
+		SHA_CHKSUM_BIN="shasum -a 256"
+	else
+		SHA_CHKSUM_BIN="sha256sum"
+	fi
 
-# This command will allow us to create a random password roughly equivalent to `pwmake 128` on linux, but should be available on all
-# UNIX variants (including macOS). It will allow the use of validate_password_policy=[0,1,2] with mysqld as we'll meet the strict requirements.
-# *But*, there seems to be an issue in how router handles the --uri parameter which prevents us from using non-alphanumberic characters...
-# So for now we'll pass the password to router via STDIN
-RANDOM_PASSWORD=$(head -c 128 /dev/urandom | LANG=C tr -cd "[:alpha:] [:punct:]" | tr -d "[:blank:] [:cntrl:] \;\` \* \"\'\\\\" | cut -c 1-27)
+	# This command will allow us to create a random password roughly equivalent to `pwmake 128` on linux, but should be available on all
+	# UNIX variants (including macOS). It will allow the use of validate_password_policy=[0,1,2] with mysqld as we'll meet the strict requirements.
+	# *But*, there seems to be an issue in how router handles the --uri parameter which prevents us from using non-alphanumberic characters...
+	# So for now we'll pass the password to router via STDIN
+	RANDOM_PASSWORD=$(head -c 128 /dev/urandom | LANG=C tr -cd "[:alpha:] [:punct:]" | tr -d "[:blank:] [:cntrl:] \;\` \* \"\'\\\\" | cut -c 1-27)
 
-if [ -z "$RANDOM_PASSWORD" ] ; then
-    RANDOM_PASSWORD=$(date +%N%s)
+	if [ -z "$RANDOM_PASSWORD" ] ; then
+		RANDOM_PASSWORD=$(date +%N%s)
+	fi
+	echo $RANDOM_PASSWORD > $SECRET_PWD_FILE
 fi
-echo $RANDOM_PASSWORD > $SECRET_PWD_FILE
 
 echo "Creating dedicated grnet network..."
 create_network grnet
