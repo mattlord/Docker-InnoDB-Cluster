@@ -113,6 +113,15 @@ To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes
 
 ---
 
+## Testing out myarbitratord 
+  If you'd also like to test out my example arbitrator, you can do so easily once you have a working cluster. For example, if you're using ```./start_three_node_cluster.sh``` then you can run a myarbitratord container this way:
+
+  ```
+  docker run --rm --name=myarbitratord --network=grnet --hostname=myarbitratord --entrypoint=/bin/bash -itd golang -c "go get github.com/mattlord/myarbitratord && go install github.com/mattlord/myarbitratord && /go/bin/myarbitratord -mysql_password '$(cat secretpassword.txt)' -seed_host myinnodbcluster"
+  ```   
+
+---
+
 ### macOS tip (and some Windows too)
   If you're like me and you use Docker on macOS, it's helpful to know that Docker actually executes the containers inside an [Alpine Linux](https://alpinelinux.org) VM which in turn runs inside of a native [xhyve](http://www.pagetable.com/?p=831) hypervisor. You can access the console for that VM using:
   ```
