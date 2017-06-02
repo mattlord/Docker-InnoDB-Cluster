@@ -120,6 +120,11 @@ To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes
   docker run --rm --name=myarbitratord --network=grnet --hostname=myarbitratord --entrypoint=/bin/bash -itd golang -c "go get github.com/mattlord/myarbitratord && go install github.com/mattlord/myarbitratord && /go/bin/myarbitratord -mysql_password '$(cat secretpassword.txt)' -seed_host myinnodbcluster"
   ```   
 
+  You can then see the runtime stats with:
+  ```
+  docker exec -it myarbitratord curl localhost:8099/stats
+  ```
+
 ---
 
 ### macOS tip (and some Windows too)
