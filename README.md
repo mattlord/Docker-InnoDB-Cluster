@@ -127,6 +127,17 @@ To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes
 
 ---
 
+---
+
+## Health Checks
+  Docker 1.12 added support for custom health check commands which can be defined in the [Dockerfile](https://docs.docker.com/engine/reference/builder/#healthcheck) or on the command-line with [docker run](https://docs.docker.com/engine/reference/run/#healthcheck). For Group Replication nodes you could use a healthcheck command like this so that the container will end/exit when the node is in the [ERROR or OFFLINE state](https://dev.mysql.com/doc/refman/5.7/en/group-replication-server-states.html):
+
+  ```
+  mysql -nsLNE -e "select member_state from performance_schema.replication_group_members where member_id=@@server_uuid;" 2>/dev/null | grep -v "*" | egrep -v "ERROR|OFFLINE" || exit 1
+  ```
+
+---
+
 ### macOS tip (and some Windows too)
   If you're like me and you use Docker on macOS, it's helpful to know that Docker actually executes the containers inside an [Alpine Linux](https://alpinelinux.org) VM which in turn runs inside of a native [xhyve](http://www.pagetable.com/?p=831) hypervisor. You can access the console for that VM using:
   ```
