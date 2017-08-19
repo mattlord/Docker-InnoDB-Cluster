@@ -177,7 +177,15 @@ else
 
 			echo 'FLUSH PRIVILEGES ;' | "${mysql[@]}"
 		fi
+
+		# Now we need to create the internal session user that is used to access the SQL service 
+                # by various plugins, e.g. group_replication and the mysqlx plugins
+                echo "INSERT IGNORE INTO mysql.user VALUES ('localhost','mysql.session','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','Y','N','N','N','N','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE','N',CURRENT_TIMESTAMP,NULL,'Y');" | "${mysql[@]}"
+		echo "INSERT IGNORE INTO mysql.tables_priv VALUES ('localhost', 'mysql', 'mysql.session', 'user', 'root\@localhost', CURRENT_TIMESTAMP, 'Select', '');" | "${mysql[@]}"
+		echo "INSERT IGNORE INTO mysql.db VALUES ('localhost', 'performance_schema', 'mysql.session','Y','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N');" | "${mysql[@]}"
+
 		echo
+
 		for f in /docker-entrypoint-initdb.d/*; do
 			case "$f" in
 				*.sh)  echo "$0: running $f"; . "$f" ;;
@@ -211,7 +219,7 @@ else
 
 	chown -R mysql:mysql "$DATADIR"
 
-        CMD="mysqld $ARGS --plugin-load=group_replication.so --group_replication_start_on_boot=ON $MYSQLD_ARGS"
+        CMD="mysqld $ARGS --plugin-load=group_replication.so --group_replication_start_on_boot=ON --super_read_only=ON $MYSQLD_ARGS"
 fi
 
 exec $CMD
