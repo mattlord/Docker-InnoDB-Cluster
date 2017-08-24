@@ -1,0 +1,60 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: innodb-cluster
+  labels:
+    app: innodb-cluster
+spec:
+  ports:
+  - port: 3360
+    name: mysql-classic-protocol
+  - port: 33060
+    name: mysql-x-protocol
+  - port: 6606
+    name: mysql-gcs
+  - port: 6446
+    name: mysql-router-rw
+  - port: 6447
+    name: mysql-router-ro
+  clusterIP: None
+  selector:
+    app: innodb-cluster
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: innodb-cluster
+spec:
+  serviceName: "innodb-cluster"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: innodb-cluster
+    spec:
+      containers:
+      - name: innodb-cluster
+        image: mattalord/innodb-cluster
+        ports:
+        - containerPort: 3360
+          name: mysql-classic-protocol
+        - containerPort: 33060
+          name: mysql-x-protocol
+        - containerPort: 6606
+          name: mysql-gcs
+        - containerPort: 6446
+          name: mysql-router-rw
+        - containerPort: 6447
+          name: mysql-router-ro
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: innodb-cluster
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
