@@ -153,7 +153,7 @@ else
 		"${mysql[@]}" <<-EOSQL
 			-- What's done in this file shouldn't be replicated
 			SET @@SESSION.SQL_LOG_BIN=0;
-			DELETE FROM mysql.user WHERE user NOT IN ('mysql.sys', 'mysqlxsys');
+			DELETE FROM mysql.user WHERE user NOT IN ('mysql.session', 'mysql.sys', 'root') OR host NOT IN ('localhost');
 			CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' ;
 			GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION ;
 			DROP DATABASE IF EXISTS test ;
@@ -177,12 +177,6 @@ else
 
 			echo 'FLUSH PRIVILEGES ;' | "${mysql[@]}"
 		fi
-
-		# Now we need to create the internal session user that is used to access the SQL service 
-                # by various plugins, e.g. group_replication and the mysqlx plugins
-                echo "INSERT IGNORE INTO mysql.user VALUES ('localhost','mysql.session','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','Y','N','N','N','N','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE','N',CURRENT_TIMESTAMP,NULL,'Y');" | "${mysql[@]}"
-		echo "INSERT IGNORE INTO mysql.tables_priv VALUES ('localhost', 'mysql', 'mysql.session', 'user', 'root\@localhost', CURRENT_TIMESTAMP, 'Select', '');" | "${mysql[@]}"
-		echo "INSERT IGNORE INTO mysql.db VALUES ('localhost', 'performance_schema', 'mysql.session','Y','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N');" | "${mysql[@]}"
 
 		echo
 
