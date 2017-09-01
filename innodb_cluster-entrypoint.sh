@@ -40,7 +40,7 @@ if [ "$NODE_TYPE" = 'router' ]; then
 
         # first we need to see if the cluster metadata already exists 
 	set +e
-        metadata_exists=$(mysqlsh --uri="$MYSQL_USER"@"$MYSQL_HOST":"$MYSQL_PORT" -p"$MYSQL_ROOT_PASSWORD" --js -i -e "dba.getCluster( '${CLUSTER_NAME}' )" 2>&1 | grep "<Cluster:$CLUSTER_NAME>")
+        metadata_exists=$(mysqlsh --uri="$MYSQL_USER"@"$MYSQL_HOST":"$MYSQL_PORT" -p"$MYSQL_ROOT_PASSWORD" --no-wizard --js -i -e "dba.getCluster( '${CLUSTER_NAME}' )" 2>&1 | grep "<Cluster:$CLUSTER_NAME>")
         set -e
 
 	# We need to get the host:port combination for the primary node (or just the first node when NOT in single primary mode)
@@ -48,7 +48,7 @@ if [ "$NODE_TYPE" = 'router' ]; then
 
         if [ -z "$metadata_exists" ]; then
 		# Then let's create the innodb cluster metadata 
-		output=$(mysqlsh --uri="$MYSQL_USER"@"$HOSTPORT" -p"$MYSQL_ROOT_PASSWORD" --js -i -e "dba.createCluster('${CLUSTER_NAME}', {adoptFromGR: true})")
+		output=$(mysqlsh --uri="$MYSQL_USER"@"$HOSTPORT" -p"$MYSQL_ROOT_PASSWORD" --no-wizard --js -i -e "dba.createCluster('${CLUSTER_NAME}', {adoptFromGR: true})")
 	fi
 
         output=$(echo "$MYSQL_ROOT_PASSWORD" | mysqlrouter --bootstrap="$MYSQL_USER"@"$HOSTPORT" --user=mysql --name "$HOSTNAME" --force)
