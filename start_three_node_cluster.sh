@@ -87,7 +87,7 @@ create_network grnet
 
 echo "Bootstrapping the cluster..."
 params="-e SERVER_ID=100 --name=mysqlgr1 --hostname=mysqlgr1 --network-alias=myinnodbcluster"
-$docker_run $params -e BOOTSTRAP=1 -itd $INNODB_CLUSTER_IMG
+$docker_run $params -e BOOTSTRAP=1 -e GROUP_SEEDS="mysqlgr1:6606,mysqlgr2:6606,mysqlgr3:6606" -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr1
 check_for_started_server mysqlgr1
@@ -97,14 +97,14 @@ GROUP_PARAM=$(docker logs mysqlgr1 | awk 'BEGIN {RS=" "}; /GROUP_NAME/')
 
 echo "Adding second node..."
 params="-e SERVER_ID=200 --name=mysqlgr2 --hostname=mysqlgr2 --network-alias=myinnodbcluster"
-$docker_run $params -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd $INNODB_CLUSTER_IMG
+$docker_run $params -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606,mysqlgr2:6606,mysqlgr3:6606" -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr2
 check_for_started_server mysqlgr2
 
 echo "Adding third node..."
 params="-e SERVER_ID=300 --name=mysqlgr3 --hostname=mysqlgr3  --network-alias=myinnodbcluster"
-$docker_run $params -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606" -itd $INNODB_CLUSTER_IMG
+$docker_run $params -e $GROUP_PARAM -e GROUP_SEEDS="mysqlgr1:6606,mysqlgr2:6606,mysqlgr3:6606" -itd $INNODB_CLUSTER_IMG
 
 check_for_failure mysqlgr3
 check_for_started_server mysqlgr3
