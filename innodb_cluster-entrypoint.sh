@@ -80,27 +80,6 @@ else
         # We'll use this variable to manage the mysqld args 
         MYSQLD_ARGS="--server_id=$SERVER_ID"
 
-	# if we're bootstrapping a new group then let's just generate a new group_name / UUID	
-	if [ ! -z "$BOOTSTRAP" ]; then
-		[ -z "$GROUP_NAME" ] && GROUP_NAME=$(uuidgen)
-		echo >&1 "info: Bootstrapping new Group Replication cluster using --group_replication_group_name=$GROUP_NAME"
-		echo >&1 "  You will need to specify GROUP_NAME=$GROUP_NAME if you want to add another node to this cluster"
-
-		MYSQLD_ARGS="$MYSQLD_ARGS --loose-group_replication_bootstrap_group=ON"
-	elif [ -z "$GROUP_SEEDS" ]; then
-		echo >&2 'error: You must specify at least one valid IP/hostname:PORT URI value for GROUP_SEEDS in order to join an existing cluster'
-	        exit 1
-        else
-		echo >&1 "info: attempting to join the $GROUP_NAME group using $GROUP_SEEDS as seeds"
-                MYSQLD_ARGS="$MYSQLD_ARGS --loose-group_replication_group_seeds=$GROUP_SEEDS"
-	fi
-
-        # You can use --hostname=<hostname> for each container or use the auto-generated one; 
-        # we'll need to use the hostname for group_replication_local_address
-        HOSTNAME=$(hostname)
-
-	MYSQLD_ARGS="$MYSQLD_ARGS --loose-group_replication_group_name=$GROUP_NAME --loose-group_replication_local_address=$HOSTNAME:6606"
-
 	# Test we're able to startup without errors. We redirect stdout to /dev/null so
 	# only the error messages are left.
 	result=0
@@ -113,6 +92,41 @@ else
 
 	# Get config
 	DATADIR="$("$CMD" --verbose --help --log-bin-index=/tmp/tmp.index $MYSQLD_ARGS 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
+
+	GR_ARGS="--plugin-load=group_replication.so --group_replication_start_on_boot=ON --super_read_only=ON"
+
+	# if we're bootstrapping a new group then let's just generate a new group_name / UUID	
+	if [ ! -z "$BOOTSTRAP" ]; then
+		# Let's not blindly bootstrap the cluster if the datadir already exists
+		# In that case we've likely restarted an existing container
+		if [ ! -d "$DATADIR/mysql" ]; then
+			GR_ARGS="$GR_ARGS --group_replication_bootstrap_group=ON"
+
+			# Let's generate a UUID if one hasn't been specified 
+			[ -z "$GROUP_NAME" ] && GROUP_NAME=$(uuidgen)
+
+			#Let's persist the group_name since the env variable is not set
+			#This will allow for restarting the container w/o bootstrapping a new/second cluster
+			echo "loose-group-replication-group-name=$GROUP_NAME" >> /etc/mysql/my.cnf
+		
+			echo >&1 "info: Bootstrapping new Group Replication cluster using --group_replication_group_name=$GROUP_NAME"
+			echo >&1 "  You will need to specify GROUP_NAME=$GROUP_NAME if you want to add another node to this cluster"
+		fi
+	elif [ -z "$GROUP_SEEDS" ]; then
+		echo >&2 'error: You must specify at least one valid IP/hostname:PORT URI value for GROUP_SEEDS in order to join an existing cluster'
+	        exit 1
+        else
+		echo >&1 "info: attempting to join the $GROUP_NAME group using $GROUP_SEEDS as seeds"
+        	GR_ARGS="$GR_ARGS --group_replication_group_name=$GROUP_NAME"
+	fi
+
+        GR_ARGS="$GR_ARGS --group_replication_group_seeds=$GROUP_SEEDS"
+
+        # You can use --hostname=<hostname> for each container or use the auto-generated one; 
+        # we'll need to use the hostname for group_replication_local_address
+        HOSTNAME=$(hostname)
+
+	GR_ARGS="$GR_ARGS --group_replication_local_address=$HOSTNAME:6606"
 
 	if [ ! -d "$DATADIR/mysql" ]; then
 		if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
@@ -213,7 +227,7 @@ else
 
 	chown -R mysql:mysql "$DATADIR"
 
-        CMD="mysqld $ARGS --plugin-load=group_replication.so --group_replication_start_on_boot=ON --super_read_only=ON $MYSQLD_ARGS"
+        CMD="mysqld $ARGS $GR_ARGS $MYSQLD_ARGS"
 fi
 
 exec $CMD
