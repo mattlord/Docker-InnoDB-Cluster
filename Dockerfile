@@ -22,6 +22,6 @@ VOLUME /var/lib/mysqlrouter
 COPY innodb_cluster-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-EXPOSE 3306 6606 33060
+EXPOSE 3306 6606 6446 6447 33060
 CMD [""]
 
