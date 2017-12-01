@@ -105,11 +105,11 @@ This manual process essentially documents what the `start_three_node_cluster.sh`
 
 To test the `RW` port, which always goes to the PRIMARY node:
 
-  ```mysql -u root -p$(cat $MYSQL_ROOT_PASSWORD) -h localhost --protocol=tcp -P6446 -e 'SELECT @@global.server_uuid'```
+  ```mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -h localhost --protocol=tcp -P6446 -e 'SELECT @@global.server_uuid'```
 
 To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes:
 
-  ```mysql -u root -p$(cat $MYSQL_ROOT_PASSWORD) -h localhost --protocol=tcp -P6447 -e 'SELECT @@global.server_uuid'```
+  ```mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -h localhost --protocol=tcp -P6447 -e 'SELECT @@global.server_uuid'```
 
 ---
 
