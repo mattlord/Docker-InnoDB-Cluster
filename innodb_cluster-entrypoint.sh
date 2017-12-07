@@ -100,7 +100,7 @@ else
 		# Let's not blindly bootstrap the cluster if the datadir already exists
 		# In that case we've likely restarted an existing container or are rebootstraping
 		# the entire cluster (when the datadir exists and there are no seeds specified)
-		if [ ! -d "$DATADIR/mysql" -a -n "$GROUP_SEEDS" ]; then
+		if [ ! -d "$DATADIR/mysql" ] || [ -z "$GROUP_SEEDS" ] ; then
 			GR_ARGS="$GR_ARGS --group_replication_bootstrap_group=ON"
 
 			# Let's generate a UUID if one hasn't been specified 
