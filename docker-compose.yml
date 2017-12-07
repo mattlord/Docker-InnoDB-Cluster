@@ -1,0 +1,51 @@
+version: '3'
+services:
+
+  mysql-1:
+    image: "mattalord/innodb-cluster"
+    restart: always
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "GROUP_NAME=C55153C1-1574-4972-BF06-7332D6AD46A7"
+      - "BOOTSTRAP=1"
+    volumes:
+      - ./data/mysql-1:/var/lib/mysql
+  mysql-2:
+    image: "mattalord/innodb-cluster"
+    restart: always
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "GROUP_NAME=C55153C1-1574-4972-BF06-7332D6AD46A7"
+      - "GROUP_SEEDS=mysql-1:6606"
+    volumes:
+      - ./data/mysql-2:/var/lib/mysql
+    depends_on:
+      - mysql-1
+  mysql-3:
+    image: "mattalord/innodb-cluster"
+    restart: always
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "GROUP_NAME=C55153C1-1574-4972-BF06-7332D6AD46A7"
+      - "GROUP_SEEDS=mysql-1:6606"
+    volumes:
+      - ./data/mysql-3:/var/lib/mysql
+    depends_on:
+      - mysql-1
+  router:
+    image: "mattalord/innodb-cluster"
+    restart: always
+    ports:
+      - "3306:3306"
+      - "6606:6606"
+      - "6446-6447:6446-6447"
+    volumes:
+      - ./data/mysql-router:/var/lib/mysqlrouter
+    depends_on:
+      - mysql-1
+      - mysql-2
+      - mysql-3
+    environment:
+      - "NODE_TYPE=router"
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "MYSQL_HOST=mysql-1"
