@@ -123,6 +123,13 @@ else
 		echo >&1 "info: attempting to join the $GROUP_NAME group using $GROUP_SEEDS as seeds"
 	fi
 
+	# Let's validate the group_name, as it needs to be a valid UUID 
+	is_valid_uuid="$(echo $GROUP_NAME | tr '[:upper:]' '[:lower:]' | awk '$1 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/ { print $1; exit }')"
+	if [ -z "$is_valid_uuid" ]; then
+		echo >&2 'error: Specified GROUP_NAME is not a valid UUID'
+                exit 1
+	fi
+
         GR_ARGS="$GR_ARGS --group_replication_group_name=$GROUP_NAME --group_replication_group_seeds=$GROUP_SEEDS"
 
         # You can use --hostname=<hostname> for each container or use the auto-generated one; 
