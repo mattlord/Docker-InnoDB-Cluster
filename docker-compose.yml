@@ -1,9 +1,13 @@
+#
+# This is an example file for docker-compose
+#
 version: '3'
 services:
 
   mysql-1:
     image: "mattalord/innodb-cluster"
     restart: always
+    hostname: mysql-1
     environment:
       - "MYSQL_ROOT_PASSWORD=root"
       - "GROUP_NAME=C55153C1-1574-4972-BF06-7332D6AD46A7"
@@ -13,10 +17,11 @@ services:
   mysql-2:
     image: "mattalord/innodb-cluster"
     restart: always
+    hostname: mysql-2
     environment:
       - "MYSQL_ROOT_PASSWORD=root"
       - "GROUP_NAME=C55153C1-1574-4972-BF06-7332D6AD46A7"
-      - "GROUP_SEEDS=mysql-1:6606"
+      - "GROUP_SEEDS=mysql-1:6606,mysql-3:6606"
     volumes:
       - ./data/mysql-2:/var/lib/mysql
     depends_on:
@@ -24,10 +29,11 @@ services:
   mysql-3:
     image: "mattalord/innodb-cluster"
     restart: always
+    hostname: mysql-3
     environment:
       - "MYSQL_ROOT_PASSWORD=root"
       - "GROUP_NAME=C55153C1-1574-4972-BF06-7332D6AD46A7"
-      - "GROUP_SEEDS=mysql-1:6606"
+      - "GROUP_SEEDS=mysql-1:6606,mysql-2:6606"
     volumes:
       - ./data/mysql-3:/var/lib/mysql
     depends_on:
@@ -35,6 +41,7 @@ services:
   router:
     image: "mattalord/innodb-cluster"
     restart: always
+    hostname: router
     ports:
       - "3306:3306"
       - "6606:6606"
