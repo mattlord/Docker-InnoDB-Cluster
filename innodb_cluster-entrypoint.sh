@@ -98,20 +98,21 @@ else
 
 	GR_ARGS="--plugin-load=group_replication.so --group_replication_start_on_boot=ON --super_read_only=ON"
 
-	# if we're bootstrapping a new group then let's just generate a new group_name / UUID	
 	if [ ! -z "$BOOTSTRAP" ]; then
 		# Let's not blindly bootstrap the cluster if the datadir already exists
 		# In that case we've likely restarted an existing container or are rebootstraping
 		# the entire cluster (when the datadir exists and there are no seeds specified)
-		if [ ! -d "$DATADIR/mysql" ] || [ -z "$GROUP_SEEDS" ] ; then
+		if [ ! -d "$DATADIR/mysql" ] || [ -z "$GROUP_SEEDS" ]; then
 			GR_ARGS="$GR_ARGS --group_replication_bootstrap_group=ON"
 
-			# If a group name hasn't been specified anywhere, let's auto generate one 
-			[ -z "$GROUP_NAME" ] && GROUP_NAME=$(uuidgen)
+			# If a group name hasn't been specified anywhere, let's finally auto generate one 
+			if [ -z "$GROUP_NAME" ]; then
+				GROUP_NAME=$(uuidgen)
 
-			#Let's persist the group_name since the env variable is not set
-			#This will allow for restarting the container w/o bootstrapping a new/second cluster
-			echo "loose-group-replication-group-name=$GROUP_NAME" >> /etc/mysql/my.cnf
+				# Let's persist the group_name since the env variable and config option was not set
+				# This will allow for restarting the container w/o bootstrapping a new/second cluster
+				echo "loose-group-replication-group-name=$GROUP_NAME" >> /etc/mysql/my.cnf
+			fi	
 		
 			echo >&1 "info: Bootstrapping Group Replication cluster using --group_replication_group_name=$GROUP_NAME"
 			echo >&1 "  You will need to specify GROUP_NAME=$GROUP_NAME if you want to add another node to this cluster"
