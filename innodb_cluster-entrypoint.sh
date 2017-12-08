@@ -93,6 +93,9 @@ else
 	# Get config
 	DATADIR="$("$CMD" --verbose --help --log-bin-index=/tmp/tmp.index $MYSQLD_ARGS 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
 
+	# If no group name has been specified, let's see if one is in the config files
+	[ -z "$GROUP_NAME" ] && GROUP_NAME="$(/usr/bin/my_print_defaults mysqld 2>/dev/null | awk -F "=" '$1 ~ /--[loose]*[_-]*group[_-]+replication[_-]+group[_-]+name/ { print $2; exit }')"
+
 	GR_ARGS="--plugin-load=group_replication.so --group_replication_start_on_boot=ON --super_read_only=ON"
 
 	# if we're bootstrapping a new group then let's just generate a new group_name / UUID	
@@ -103,14 +106,14 @@ else
 		if [ ! -d "$DATADIR/mysql" ] || [ -z "$GROUP_SEEDS" ] ; then
 			GR_ARGS="$GR_ARGS --group_replication_bootstrap_group=ON"
 
-			# Let's generate a UUID if one hasn't been specified 
+			# If a group name hasn't been specified anywhere, let's auto generate one 
 			[ -z "$GROUP_NAME" ] && GROUP_NAME=$(uuidgen)
 
 			#Let's persist the group_name since the env variable is not set
 			#This will allow for restarting the container w/o bootstrapping a new/second cluster
 			echo "loose-group-replication-group-name=$GROUP_NAME" >> /etc/mysql/my.cnf
 		
-			echo >&1 "info: Bootstrapping new Group Replication cluster using --group_replication_group_name=$GROUP_NAME"
+			echo >&1 "info: Bootstrapping Group Replication cluster using --group_replication_group_name=$GROUP_NAME"
 			echo >&1 "  You will need to specify GROUP_NAME=$GROUP_NAME if you want to add another node to this cluster"
 		fi
 	elif [ -z "$GROUP_SEEDS" ]; then
@@ -118,10 +121,9 @@ else
 	        exit 1
         else
 		echo >&1 "info: attempting to join the $GROUP_NAME group using $GROUP_SEEDS as seeds"
-        	GR_ARGS="$GR_ARGS --group_replication_group_name=$GROUP_NAME"
 	fi
 
-        GR_ARGS="$GR_ARGS --group_replication_group_seeds=$GROUP_SEEDS"
+        GR_ARGS="$GR_ARGS --group_replication_group_name=$GROUP_NAME --group_replication_group_seeds=$GROUP_SEEDS"
 
         # You can use --hostname=<hostname> for each container or use the auto-generated one; 
         # we'll need to use the hostname for group_replication_local_address
