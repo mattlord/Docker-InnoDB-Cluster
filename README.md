@@ -9,7 +9,7 @@ For more information, see the [official product page](https://www.mysql.com/prod
 
 ## Container Usage
 
-You can either use the example shell scripts to create a cluster, or you can do it manually.
+You can use the example shell scripts (start_three_node_cluster.sh and cleanup_cluster.sh), [Docker compose](https://docs.docker.com/compose/) with the provided sample [docker-compose.yml](https://docs.docker.com/compose/compose-file/) file, or you can manage things manually.
 
 ### Security
 
@@ -35,6 +35,22 @@ To create a three node cluster that includes MySQL Router and MySQL Shell, and c
 #### Tear down (remove) a cluster
 
   ```./cleanup_cluster.sh```
+
+### Docker Compose Method
+
+[Docker compose](https://docs.docker.com/compose/) can be used to create a cluster or to shut it down using the provided sample [docker-compose.yml](https://docs.docker.com/compose/compose-file/) file.
+
+#### Create a cluster
+
+To create a three node cluster that includes MySQL Router and MySQL Shell using the sample docker-compose.yml file:
+
+  ```docker-compose up```
+
+#### Shut down the cluster
+
+  ```docker-compose down```
+
+**Note:** The data for the containers are retained in the ./data subdirectory where docker-compose is executed. So this method may be preferred when you wish to retain the data in between tests. 
 
 ### Manual Method
 This manual process essentially documents what the `start_three_node_cluster.sh` helper script performs. The main difference is that the examples contain a simple and non-secure password value of 'root'. You can leverage the built-in secure means of password management by using ```MYSQL_ROOT_PASSWORD=$(cat secretpassword.txt)``` instead.
