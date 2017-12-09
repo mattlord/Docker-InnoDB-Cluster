@@ -42,11 +42,13 @@ To create a three node cluster that includes MySQL Router and MySQL Shell, and c
 
 #### Create a cluster
 
-To create a three node cluster that includes MySQL Router and MySQL Shell using the sample docker-compose.yml file:
+To create a three node cluster that includes MySQL Router and MySQL Shell, execute this command in any directory where the provided [docker-compose.yml](https://docs.docker.com/compose/compose-file/) file exists:
 
   ```docker-compose up```
 
 #### Shut down the cluster
+
+To shut down the cluster, execute this command in any directory where the provided [docker-compose.yml](https://docs.docker.com/compose/compose-file/) file exists:
 
   ```docker-compose down```
 
