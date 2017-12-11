@@ -228,20 +228,20 @@ else
 		echo
 		echo 'MySQL init process done. Ready for start up.'
 		echo
-
-		# Let's store the account info for the healthcheck 
-		touch "$HOME"/.my.cnf
-		cat > "$HOME/.my.cnf" <<EOCF
-[client]
-user=root
-password=${MYSQL_ROOT_PASSWORD}
-EOCF
 	fi
 
 	chown -R mysql:mysql "$DATADIR"
 
         CMD="mysqld $ARGS $GR_ARGS $MYSQLD_ARGS"
 fi
+
+# Let's store the account info for the healthcheck and general ease-of-use
+touch "$HOME"/.my.cnf
+cat > "$HOME/.my.cnf" <<EOCF
+[client]
+user=root
+password=${MYSQL_ROOT_PASSWORD}
+EOCF
 
 exec $CMD
 

@@ -131,9 +131,4 @@ sleep $DELAY
 
 ./tests/check_cluster.sh 1
 
-# Allow using mysql without typing a password
-for node in "gr1" "gr2" "gr3" "router1"; do
-    docker exec -it mysql$node /opt/ic/make_my_cnf.sh
-done
-
 exit
