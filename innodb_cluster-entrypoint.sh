@@ -214,12 +214,6 @@ else
 			echo
 		done
 
-		if [ ! -z "$MYSQL_ONETIME_PASSWORD" ]; then
-			"${mysql[@]}" <<-EOSQL
-				ALTER USER 'root'@'%' PASSWORD EXPIRE;
-			EOSQL
-		fi
-
                 # let's remove any binary logs or GTID metadata that may have been generated 
                 echo 'RESET MASTER ;' | "${mysql[@]}"
 
@@ -234,6 +228,14 @@ else
 		echo
 		echo 'MySQL init process done. Ready for start up.'
 		echo
+
+		# Let's store the account info for the healthcheck 
+		touch "$HOME"/.my.cnf
+		cat > "$HOME/.my.cnf" <<EOCF
+[client]
+user=root
+password=${MYSQL_ROOT_PASSWORD}
+EOCF
 	fi
 
 	chown -R mysql:mysql "$DATADIR"

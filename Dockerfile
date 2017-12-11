@@ -22,6 +22,9 @@ VOLUME /var/lib/mysqlrouter
 COPY innodb_cluster-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
+COPY healthcheck.sh /healthcheck.sh
+HEALTHCHECK --start-period=60s --timeout=15s --interval=10s --retries=2 CMD /healthcheck.sh
+
 EXPOSE 3306 6606 6446 6447 33060
 CMD [""]
 
