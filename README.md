@@ -30,7 +30,7 @@ To create a three node cluster that includes MySQL Router and MySQL Shell, and c
 
 > If you want to use a different image (for example when you have built a local variant of the image) you can run the following *before* invoking start_three_node_cluster.sh:
 
-  ```export INNODB_CLUSTER_IMG=your_username/your_image_name```
+>  ```export INNODB_CLUSTER_IMG=your_username/your_image_name```
 
 #### Tear down (remove) a cluster
 
