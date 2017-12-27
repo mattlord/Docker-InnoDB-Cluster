@@ -16,7 +16,7 @@ You can use the example shell scripts (start_three_node_cluster.sh and cleanup_c
 A secure method of password generation and management is available using the auto-generated random password that's stored in a file within each container.
 All that's necessary to use the secure method is to replace all instances of ```MYSQL_ROOT_PASSWORD=root``` with ```MYSQL_ROOT_PASSWORD=$(cat secretpassword.txt)``` in each example docker command.
 
-**Note:** the scripted method now uses the secure password management facilities by default.
+> The scripted method now uses the secure password management facilities by default.
 
 ### Scripted Method
 
@@ -28,7 +28,7 @@ To create a three node cluster that includes MySQL Router and MySQL Shell, and c
 
   ```./start_three_node_cluster.sh```
 
-**Note:** if you want to use a different image (for example when you have built a local variant of the image) you can run the following *before* invoking start_three_node_cluster.sh:
+> If you want to use a different image (for example when you have built a local variant of the image) you can run the following *before* invoking start_three_node_cluster.sh:
 
   ```export INNODB_CLUSTER_IMG=your_username/your_image_name```
 
@@ -52,7 +52,7 @@ To shut down the cluster, execute this command in any directory where the provid
 
   ```docker-compose down```
 
-**Note:** The data for the containers are retained in the ./data subdirectory where docker-compose is executed. So this method may be preferred when you wish to retain the data in between tests. 
+> The data for the containers are retained in the ./data subdirectory where docker-compose is executed. So this method may be preferred when you wish to retain the data in between tests. 
 
 ### Manual Method
 This manual process essentially documents what the `start_three_node_cluster.sh` helper script performs. The main difference is that the examples contain a simple and non-secure password value of 'root'. You can leverage the built-in secure means of password management by using ```MYSQL_ROOT_PASSWORD=$(cat secretpassword.txt)``` instead.
