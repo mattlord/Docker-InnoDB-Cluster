@@ -157,7 +157,7 @@ To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes
 ---
 
 ### macOS tip (and some Windows too)
-  If you're like me and you use Docker on macOS, it's helpful to know that Docker actually executes the containers inside an [Alpine Linux](https://alpinelinux.org) VM which in turn runs inside of a native [xhyve](http://www.pagetable.com/?p=831) hypervisor. You can access the console for that VM using:
+If you're like me and you use Docker on macOS, it's helpful to know that Docker actually executes the containers inside an [Alpine Linux](https://alpinelinux.org) VM which in turn runs inside of a native [xhyve](http://www.pagetable.com/?p=831) hypervisor. You can access the console for that VM using:
   ```
   screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
   ```
@@ -165,4 +165,6 @@ To test the `RO` port, which is round-robin load balanced to the SECONDARY nodes
 From there you can see the docker networking, volumes (/var/lib/docker), etc. Knowing how this all works "under the hood" will certainly come in handy sooner or later. Whenever you want to detach and close your console session just use:
 ```CTRL-A-\```
 
-FWIW, Docker on Windows (assuming you're not using the fully native windows-only version available in Windows Server 2016) works in a similar way, but uses [Hyper-V](https://en.wikipedia.org/wiki/Hyper-V) as the native hypervisor. If you want to dig further, you can read up on the [LinuxKit project](https://blog.docker.com/2017/04/introducing-linuxkit-container-os-toolkit/).
+> Docker on Windows -- assuming you're using Linux containers (the latest Windows 10 and Windows Server 2016 builds can also utilize NT kernel features to run containerized windows processes) -- works in a similar way, but uses [Hyper-V](https://en.wikipedia.org/wiki/Hyper-V) as the native hypervisor.
+
+If you want to dig further on how Docker provides Linux containers on non-Linux hosts, you can read up on the [LinuxKit project](https://blog.docker.com/2017/04/introducing-linuxkit-container-os-toolkit/).
